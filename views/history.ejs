@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msvalidate.01" content="F836059B67B11AF7B6B0D4BDF777C658" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-180.png">
+    <title>抽卡历史 - 似意抽卡</title>
+    <link rel="stylesheet" href="/style.css?v=31">
+</head>
+<body>
+    <!-- 毛玻璃导航栏 -->
+    <nav class="navbar">
+        <a href="/gacha" class="nav-brand"><img src="/images/siyichouka.png" class="nav-logo"></a>
+        <div class="nav-right">
+            <% if (user.avatar) { %>
+                <img src="<%= user.avatar %>" class="nav-avatar" onerror="this.style.display='none'">
+            <% } %>
+            <span class="nav-user"><b><%= user.username %></b></span>
+            <a href="/logout" class="nav-logout">退出</a>
+        </div>
+    </nav>
+
+    <!-- 卡片详情弹窗 -->
+    <div class="detail-overlay" id="detailOverlay" style="display:none;" onclick="if(event.target===this)closeDetail()">
+        <div class="detail-card">
+            <div class="detail-card-image" id="detailImage"></div>
+            <h2 class="detail-card-name" id="detailName"></h2>
+            <span class="detail-card-rarity" id="detailRarity"></span>
+            <p class="detail-card-desc" id="detailDesc"></p>
+            <p class="detail-card-time" id="detailTime"></p>
+            <button class="detail-close-btn" onclick="closeDetail()">关闭</button>
+        </div>
+    </div>
+
+    <div class="history-container">
+        <div class="history-header">
+            <a href="/gacha" class="back-btn">← 返回抽卡</a>
+            <h1>抽卡历史</h1>
+            <p class="subtitle">共抽取 <b><%= history.length %></b> 次</p>
+        </div>
+
+        <% if (history.length === 0) { %>
+            <div class="history-empty">
+                <p>还没有抽卡记录，快去抽卡吧！</p>
+            </div>
+        <% } else { %>
+            <div class="card-grid">
+                <% history.forEach(function(record) { %>
+                    <div class="grid-card rarity-border-<%= record.card_rarity %>"
+                         onclick='showDetail(<%= JSON.stringify({name: record.card_name, rarity: record.card_rarity, time: record.pulled_at, description: record.card_description, image: record.card_image}) %>)'>
+                        <div class="grid-card-image rarity-bg-<%= record.card_rarity %>">
+                            <% if (record.card_image) { %>
+                                <img src="/images/cards/<%= record.card_image %>" style="width:100%;height:100%;object-fit:cover;">
+                            <% } else { %>
+                                <span class="grid-card-emoji">
+                                    <%= record.card_rarity === 'SSSR' ? '🔥' : record.card_rarity === 'SSR' ? '👑' : record.card_rarity === 'SR' ? '🗡️' : record.card_rarity === 'R' ? '⚔️' : '🪨' %>
+                                </span>
+                            <% } %>
+                        </div>
+                        <div class="grid-card-info">
+                            <span class="grid-card-name"><%= record.card_name %></span>
+                            <span class="grid-card-rarity-badge rarity-badge-<%= record.card_rarity %>">
+                                <%= record.card_rarity %>
+                            </span>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+        var RARITY_ICONS = { 'N': '🪨', 'R': '⚔️', 'SR': '🗡️', 'SSR': '👑', 'SSSR': '🔥' };
+        var RARITY_NAMES = { 'N': '普通', 'R': '精良', 'SR': '稀有', 'SSR': '传说', 'SSSR': '超凡' };
+        var RARITY_COLORS = { 'N': '#9ca3af', 'R': '#4a9eff', 'SR': '#a855f7', 'SSR': '#f59e0b', 'SSSR': '#ff4444' };
+
+        function showDetail(card) {
+            var overlay = document.getElementById('detailOverlay');
+            var image = document.getElementById('detailImage');
+            var name = document.getElementById('detailName');
+            var rarity = document.getElementById('detailRarity');
+            var desc = document.getElementById('detailDesc');
+            var time = document.getElementById('detailTime');
+
+            var color = RARITY_COLORS[card.rarity] || '#888';
+
+            // 有图片用图片，没图片用渐变
+            if (card.image) {
+                image.className = 'detail-card-image';
+                image.innerHTML = '<img src="/images/cards/' + card.image + '" onerror="this.parentElement.className=\'detail-card-image rarity-detail-' + card.rarity + '\';this.parentElement.innerHTML=RARITY_ICONS[\'' + card.rarity + '\']||\'?\';" style="width:100%;height:100%;object-fit:cover;border-radius:10px;">';
+            } else {
+                image.className = 'detail-card-image rarity-detail-' + card.rarity;
+                image.innerHTML = RARITY_ICONS[card.rarity] || '?';
+            }
+
+            name.textContent = card.name;
+            name.style.color = color;
+
+            rarity.textContent = card.rarity + ' · ' + (RARITY_NAMES[card.rarity] || '');
+            rarity.style.background = color + '33';
+            rarity.style.color = color;
+            rarity.style.border = '1px solid ' + color;
+
+            desc.textContent = card.description || '';
+            desc.style.display = card.description ? 'block' : 'none';
+
+            time.textContent = '抽取时间：' + card.time;
+
+            overlay.style.display = 'flex';
+        }
+
+        function closeDetail() {
+            document.getElementById('detailOverlay').style.display = 'none';
+        }
+    </script>
+    <script src="/meteors.js"></script>
+</body>
+</html>

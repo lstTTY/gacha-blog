@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msvalidate.01" content="F836059B67B11AF7B6B0D4BDF777C658" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-180.png">
+    <title>41nb博客 - 二次元抽卡游戏攻略与资讯分享</title>
+    <meta name="description" content="41nb博客分享二次元抽卡游戏攻略、角色评测、游戏心得与最新资讯，适合抽卡游戏爱好者。">
+    <meta name="keywords" content="抽卡游戏,攻略,二次元,博客,游戏评测,gacha,41nb">
+    <meta property="og:title" content="41nb博客">
+    <meta property="og:description" content="41nb博客分享二次元抽卡游戏攻略、角色评测、游戏心得与最新资讯">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://41nb.dpdns.org/blog">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="41nb博客">
+    <meta name="twitter:description" content="41nb博客分享二次元抽卡游戏攻略、角色评测、游戏心得与最新资讯">
+    <link rel="stylesheet" href="/style.css?v=34">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/gacha" class="nav-brand"><img src="/images/siyiboke.png" class="nav-logo"></a>
+        <div class="nav-right">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <% if (user.avatar) { %>
+                    <img src="<%= user.avatar %>" class="nav-avatar" onerror="this.style.display='none'">
+                <% } %>
+                <span class="nav-user"><b><%= user.username %></b></span>
+                <a href="/logout" class="nav-logout">退出</a>
+            <% } else { %>
+                <a href="/login" class="nav-logout">登录</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="blog-container">
+        <div class="blog-header">
+            <h1>博客</h1>
+            <% if (typeof user !== 'undefined' && user && user.is_admin === 1) { %>
+                <a href="/blog/admin/new" class="blog-write-btn">写文章</a>
+            <% } %>
+        </div>
+
+        <% if (posts.length === 0) { %>
+            <div class="blog-empty">
+                <p>还没有文章，敬请期待...</p>
+            </div>
+        <% } else { %>
+            <div class="blog-grid">
+            <% posts.forEach(function(post) { %>
+                <a href="/blog/<%= post.id %>" class="blog-card">
+                    <% if (post.cover) { %>
+                        <div class="blog-card-cover">
+                            <img src="<%= post.cover %>" alt="<%= post.title %>">
+                        </div>
+                    <% } %>
+                    <div class="blog-card-body">
+                        <h2 class="blog-card-title"><%= post.title %></h2>
+                        <% if (post.summary) { %>
+                            <p class="blog-card-summary"><%= post.summary %></p>
+                        <% } %>
+                        <div class="blog-card-meta">
+                            <span class="blog-card-author"><%= post.author %></span>
+                            <span class="blog-card-time"><%= post.created_at %></span>
+                        </div>
+                    </div>
+                </a>
+            <% }); %>
+            </div>
+        <% } %>
+    </div>
+    <script src="/meteors.js"></script>
+</body>
+</html>

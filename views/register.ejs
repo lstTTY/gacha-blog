@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msvalidate.01" content="F836059B67B11AF7B6B0D4BDF777C658" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-180.png">
+    <title>注册 - 似意抽卡</title>
+    <meta name="description" content="注册似意抽卡账号，开始你的抽卡之旅。">
+    <link rel="stylesheet" href="/style.css?v=31">
+</head>
+<body>
+    <div class="container">
+        <h1>创建账号</h1>
+        <p class="subtitle">注册后即可开始抽卡</p>
+
+        <!-- 错误信息 -->
+        <% if (error) { %>
+            <div class="flash error"><%= error %></div>
+        <% } %>
+
+        <!-- 注册表单 -->
+        <form method="POST" action="/register">
+            <div class="field">
+                <label>用户名（至少 2 个字符）</label>
+                <input 
+                    type="text" 
+                    name="username" 
+                    placeholder="设置用户名" 
+                    required 
+                    autofocus
+                    minlength="2"
+                >
+            </div>
+            <div class="field">
+                <label>密码（至少 6 个字符）</label>
+                <input 
+                    type="password" 
+                    name="password" 
+                    placeholder="设置密码" 
+                    required
+                    minlength="6"
+                >
+            </div>
+<div class="field">
+                <label>邮箱（QQ邮箱可自动获取头像）</label>
+                <input 
+                    type="email" 
+                    name="email" 
+                    placeholder="如：123456@qq.com 或其他邮箱" 
+                    required
+                >
+            </div>
+            <button type="submit" class="btn">注册</button>
+        </form>
+
+        <div class="link-container">
+            <a href="/login" class="link">已有账号？去登录</a>
+        </div>
+
+        <p class="footer">&copy; 2026 似意抽卡</p>
+    </div>
+</body>
+</html>

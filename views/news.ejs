@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msvalidate.01" content="F836059B67B11AF7B6B0D4BDF777C658" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-180.png">
+    <title>41nb公告 - 似意抽卡网站最新动态与活动通知</title>
+    <meta name="description" content="似意抽卡网站最新公告、活动通知、版本更新与维护公告，第一时间了解网站动态。">
+    <meta name="keywords" content="公告,活动通知,网站更新,抽卡,似意抽卡">
+    <link rel="stylesheet" href="/style.css?v=31">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/gacha" class="nav-brand"><img src="/images/siyichouka.png" class="nav-logo"></a>
+        <div class="nav-right">
+            <% if (user.avatar) { %>
+                <img src="<%= user.avatar %>" class="nav-avatar" onerror="this.style.display='none'">
+            <% } %>
+            <span class="nav-user"><b><%= user.username %></b></span>
+            <a href="/logout" class="nav-logout">退出</a>
+        </div>
+    </nav>
+
+    <!-- 公告详情弹窗 -->
+    <div class="detail-overlay" id="detailOverlay" style="display:none;" onclick="if(event.target===this)closeDetail()">
+        <div class="detail-card">
+            <h2 class="detail-card-name" id="newsTitle" style="color:#fff;"></h2>
+            <p class="detail-card-time" id="newsTime"></p>
+            <p class="detail-card-desc" id="newsContent"></p>
+            <button class="detail-close-btn" onclick="closeDetail()">关闭</button>
+        </div>
+    </div>
+
+    <div class="news-container">
+        <div class="news-header">
+            <a href="/gacha" class="back-btn">← 返回抽卡</a>
+            <h1>公告</h1>
+        </div>
+
+        <% if (newsList.length === 0) { %>
+            <p style="text-align:center;color:#888;padding:40px;">暂无公告</p>
+        <% } %>
+
+        <% newsList.forEach(function(item) { %>
+            <div class="news-card" onclick='showNews(<%= JSON.stringify({title: item.title, content: item.contentHtml, time: item.created_at}) %>)'>
+                <div class="news-card-title"><%= item.title %></div>
+                <div class="news-card-time"><%= item.created_at %></div>
+            </div>
+        <% }); %>
+    </div>
+
+    <script>
+        function showNews(news) {
+            document.getElementById('newsTitle').textContent = news.title;
+            document.getElementById('newsTime').textContent = news.time;
+            document.getElementById('newsContent').innerHTML = news.content;
+            document.getElementById('detailOverlay').style.display = 'flex';
+        }
+        function closeDetail() {
+            document.getElementById('detailOverlay').style.display = 'none';
+        }
+    </script>
+    <script src="/meteors.js"></script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msvalidate.01" content="F836059B67B11AF7B6B0D4BDF777C658" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-180.png">
+    <title><%= article.title %> - 似意抽卡</title>
+    <link rel="stylesheet" href="/style.css?v=31">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/gacha" class="nav-brand"><img src="/images/siyichouka.png" class="nav-logo"></a>
+        <div class="nav-right">
+            <% if (user.avatar) { %>
+                <img src="<%= user.avatar %>" class="nav-avatar" onerror="this.style.display='none'">
+            <% } %>
+            <span class="nav-user"><b><%= user.username %></b></span>
+            <a href="/logout" class="nav-logout">退出</a>
+        </div>
+    </nav>
+
+    <div class="news-detail-container">
+        <a href="/news" class="news-back">← 返回公告列表</a>
+        <h1 class="news-detail-title"><%= article.title %></h1>
+        <div class="news-detail-time"><%= article.created_at %></div>
+        <div class="news-detail-content"><%- article.contentHtml %></div>
+    </div>
+</body>
+</html>

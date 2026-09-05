@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msvalidate.01" content="F836059B67B11AF7B6B0D4BDF777C658" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-180.png">
+    <title><%= post ? '编辑文章' : '写文章' %> - 41nb博客</title>
+    <link rel="stylesheet" href="/style.css?v=31">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/gacha" class="nav-brand"><img src="/images/siyichouka.png" class="nav-logo"></a>
+        <div class="nav-right">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <% if (user.avatar) { %>
+                    <img src="<%= user.avatar %>" class="nav-avatar" onerror="this.style.display='none'">
+                <% } %>
+                <span class="nav-user"><b><%= user.username %></b></span>
+                <a href="/logout" class="nav-logout">退出</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="blog-container blog-admin-page">
+        <a href="/blog" class="news-back">← 返回博客</a>
+        <h1><%= post ? '编辑文章' : '写文章' %></h1>
+
+        <% if (typeof error !== 'undefined' && error) { %>
+            <div class="flash error"><%= error %></div>
+        <% } %>
+
+        <form action="<%= post ? '/blog/admin/edit/' + post.id : '/blog/admin/new' %>" method="POST" class="blog-form">
+            <div class="form-group">
+                <label>标题</label>
+                <input type="text" name="title" class="blog-input" placeholder="文章标题" value="<%= post ? post.title : '' %>" required>
+            </div>
+            <div class="form-group">
+                <label>摘要（可选）</label>
+                <input type="text" name="summary" class="blog-input" placeholder="一句话摘要" value="<%= post ? post.summary : '' %>">
+            </div>
+            <div class="form-group">
+                <label>封面图链接（可选）</label>
+                <input type="text" name="cover" class="blog-input" placeholder="https://example.com/image.jpg" value="<%= post ? post.cover : '' %>">
+            </div>
+            <div class="form-group">
+                <label>内容</label>
+                <textarea name="content" class="blog-textarea" placeholder="支持换行，直接写内容就好" rows="20" required><%= post ? post.content : '' %></textarea>
+            </div>
+            <div class="form-group">
+                <label>上传图片（自动复制链接到剪贴板，粘贴到内容里即可）</label>
+                <div class="blog-upload-area">
+                    <input type="file" id="imageUpload" accept="image/*" style="display:none;" onchange="uploadImage()">
+                    <button type="button" class="blog-upload-btn" onclick="document.getElementById('imageUpload').click()">选择图片上传</button>
+                    <span id="uploadStatus" class="blog-upload-status"></span>
+                </div>
+            </div>
+            <div class="blog-form-actions">
+                <button type="submit" class="blog-submit-btn"><%= post ? '保存修改' : '发布文章' %></button>
+                <a href="/blog" class="blog-cancel-btn">取消</a>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        function uploadImage() {
+            var fileInput = document.getElementById('imageUpload');
+            var status = document.getElementById('uploadStatus');
+            if (!fileInput.files.length) return;
+
+            var formData = new FormData();
+            formData.append('image', fileInput.files[0]);
+            status.textContent = '上传中...';
+            status.style.color = '#809f9f';
+
+            fetch('/api/upload', { method: 'POST', body: formData })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.success) {
+                        var link = 'img:' + data.url;
+                        navigator.clipboard.writeText(link).then(function() {
+                            status.textContent = '已复制链接: ' + link;
+                            status.style.color = '#4caf50';
+                        }).catch(function() {
+                            status.textContent = '链接: ' + link + '（请手动复制）';
+                            status.style.color = '#4caf50';
+                        });
+                    } else {
+                        status.textContent = data.error;
+                        status.style.color = '#f44336';
+                    }
+                    fileInput.value = '';
+                })
+                .catch(function() {
+                    status.textContent = '上传失败';
+                    status.style.color = '#f44336';
+                    fileInput.value = '';
+                });
+        }
+    </script>
+</body>
+</html>

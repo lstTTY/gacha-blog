@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msvalidate.01" content="F836059B67B11AF7B6B0D4BDF777C658" />
+    <meta name="description" content="<%= post.summary || post.title %>">
+    <meta name="keywords" content="<%= post.title %>,41nb,博客,技术教程">
+    <meta property="og:title" content="<%= post.title %>">
+    <meta property="og:description" content="<%= post.summary || post.title %>">
+    <meta property="og:type" content="article">
+    <meta property="og:url" content="https://41nb.dpdns.org/blog/<%= post.id %>">
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="<%= post.title %>">
+    <meta name="twitter:description" content="<%= post.summary || post.title %>">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-180.png">
+    <title><%= post.title %> - 41nb博客</title>
+    <link rel="stylesheet" href="/style.css?v=37">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="/gacha" class="nav-brand"><img src="/images/siyiboke.png" class="nav-logo"></a>
+        <div class="nav-right">
+            <% if (typeof user !== 'undefined' && user) { %>
+                <% if (user.avatar) { %>
+                    <img src="<%= user.avatar %>" class="nav-avatar" onerror="this.style.display='none'">
+                <% } %>
+                <span class="nav-user"><b><%= user.username %></b></span>
+                <a href="/logout" class="nav-logout">退出</a>
+            <% } else { %>
+                <a href="/login" class="nav-logout">登录</a>
+            <% } %>
+        </div>
+    </nav>
+
+<div class="blog-container blog-detail-page">
+        <a href="/blog" class="news-back">← 返回博客</a>
+
+        <div class="blog-detail-layout">
+            <article class="blog-article">
+                <h1 class="blog-article-title"><%= post.title %></h1>
+                <div class="blog-article-meta">
+                    <% if (sidebar.authorAvatar) { %>
+                        <img src="<%= sidebar.authorAvatar %>" class="blog-meta-avatar" onerror="this.style.display='none'">
+                    <% } else { %>
+                        <span class="blog-meta-avatar blog-meta-avatar-placeholder"><%= sidebar.authorName.charAt(0) %></span>
+                    <% } %>
+                    <span class="blog-card-author"><%= post.author %></span>
+                    <span class="blog-meta-views">浏览 <b><%= sidebar.views %></b></span>
+                    <span class="blog-card-time"><%= post.created_at %></span>
+                    <% if (post.updated_at !== post.created_at) { %>
+                        <span class="blog-card-time">（更新于 <%= post.updated_at %>）</span>
+                    <% } %>
+                </div>
+
+                <div class="blog-article-content"><%- post.contentHtml %></div>
+            </article>
+
+            <aside class="blog-sidebar">
+                <div class="blog-sidebar-card blog-author-card">
+                    <div class="blog-author-center">
+                        <% if (sidebar.authorAvatar) { %>
+                            <img src="<%= sidebar.authorAvatar %>" class="blog-author-avatar-lg" onerror="this.style.display='none'">
+                        <% } else { %>
+                            <div class="blog-author-avatar-lg blog-author-avatar-placeholder">
+                                <%= sidebar.authorName.charAt(0) %>
+                            </div>
+                        <% } %>
+                        <span class="blog-author-name"><%= sidebar.authorName %></span>
+                        <span class="blog-author-desc">发布文章 <%= sidebar.totalPosts %> 篇</span>
+                    </div>
+                </div>
+                <div class="blog-sidebar-card">
+                    <h3 class="blog-sidebar-title">文章信息</h3>
+                    <div class="blog-stats-info">
+                        <span>浏览量：<b><%= sidebar.views %></b></span>
+                        <span>阅读时间：约 <%= sidebar.readTime %> 分钟</span>
+                        <span>发布时间：<%= sidebar.createdAt %></span>
+                    </div>
+                </div>
+                <div class="blog-sidebar-card">
+                    <h3 class="blog-sidebar-title">本站</h3>
+                    <div class="blog-stats-info">
+                        <span>文章数：<b><%= sidebar.siteStats.totalPosts %></b></span>
+                        <span>总字数：<b><%= sidebar.siteStats.totalChars.toLocaleString() %></b></span>
+                        <span>总浏览：<b><%= sidebar.siteStats.totalViews.toLocaleString() %></b></span>
+                    </div>
+                </div>
+                <div class="blog-sidebar-card">
+                    <h3 class="blog-sidebar-title">公告</h3>
+                    <div class="blog-announcement">
+                        <span><%= sidebar.announcement %></span>
+                    </div>
+                </div>
+            </aside>
+        </div>
+
+        <% if (typeof user !== 'undefined' && user && user.is_admin === 1) { %>
+            <div class="blog-admin-bar">
+                <a href="/blog/admin/edit/<%= post.id %>" class="blog-edit-btn">编辑</a>
+                <form action="/blog/admin/delete/<%= post.id %>" method="POST" style="display:inline;" onsubmit="return confirm('确定要删除这篇文章吗？')">
+                    <button type="submit" class="blog-delete-btn">删除</button>
+                </form>
+            </div>
+        <% } %>
+
+        <div class="comment-section">
+            <h3 class="comment-title">评论 (<span id="comment-count"><%= comments.length %></span>)</h3>
+
+            <% if (typeof user !== 'undefined' && user) { %>
+                <div class="comment-form">
+                    <textarea id="comment-input" placeholder="写下你的评论..." rows="3"></textarea>
+                    <button onclick="postComment()" class="comment-submit-btn">发表评论</button>
+                </div>
+            <% } else { %>
+                <div class="comment-login-hint">
+                    <a href="/login">登录</a>后才能评论
+                </div>
+            <% } %>
+
+            <div id="comment-list">
+                <% function renderComment(c, depth) { %>
+                    <div class="comment-item" data-id="<%= c.id %>">
+                        <div class="comment-header">
+                            <% if (c.avatar) { %>
+                                <img src="<%= c.avatar %>" class="comment-avatar" onerror="this.style.display='none'">
+                            <% } %>
+                            <span class="comment-username"><%= c.username %></span>
+                            <span class="comment-time"><%= c.created_at %></span>
+                            <% if (typeof user !== 'undefined' && user && (user.is_admin === 1 || user.id === c.user_id)) { %>
+                                <button class="comment-delete-btn" onclick="deleteComment(<%= c.id %>)">删除</button>
+                            <% } %>
+                        </div>
+                        <div class="comment-body"><%= c.content %></div>
+                        <% if (typeof user !== 'undefined' && user) { %>
+                            <button class="comment-reply-btn" onclick="toggleReply(<%= c.id %>)">回复</button>
+                            <div class="comment-reply-form" id="reply-form-<%= c.id %>" style="display:none">
+                                <textarea id="reply-input-<%= c.id %>" placeholder="回复 <%= c.username %>..." rows="2"></textarea>
+                                <button onclick="postReply(<%= c.id %>)" class="comment-submit-btn">回复</button>
+                            </div>
+                        <% } %>
+                    </div>
+                    <% if (c.replies && c.replies.length > 0) { %>
+                        <% c.replies.forEach(function(r) { %>
+                            <div class="comment-reply-nested" style="margin-left: <%= (depth + 1) * 24 %>px">
+                                <div class="comment-header">
+                                    <% if (r.avatar) { %>
+                                        <img src="<%= r.avatar %>" class="comment-avatar" onerror="this.style.display='none'">
+                                    <% } %>
+                                    <span class="comment-username"><%= r.username %></span>
+                                    <span class="comment-time"><%= r.created_at %></span>
+                                    <% if (typeof user !== 'undefined' && user && (user.is_admin === 1 || user.id === r.user_id)) { %>
+                                        <button class="comment-delete-btn" onclick="deleteComment(<%= r.id %>)">删除</button>
+                                    <% } %>
+                                </div>
+                                <div class="comment-body"><%= r.content %></div>
+                                <% if (typeof user !== 'undefined' && user) { %>
+                                    <button class="comment-reply-btn" onclick="toggleReply(<%= r.id %>)">回复</button>
+                                    <div class="comment-reply-form" id="reply-form-<%= r.id %>" style="display:none">
+                                        <textarea id="reply-input-<%= r.id %>" placeholder="回复 <%= r.username %>..." rows="2"></textarea>
+                                        <button onclick="postReply(<%= r.id %>)" class="comment-submit-btn">回复</button>
+                                    </div>
+                                <% } %>
+                            </div>
+                            <% if (r.replies && r.replies.length > 0) { %>
+                                <% r.replies.forEach(function(rr) { %>
+                                    <div class="comment-reply-nested" style="margin-left: <%= (depth + 2) * 24 %>px">
+                                        <div class="comment-header">
+                                            <% if (rr.avatar) { %>
+                                                <img src="<%= rr.avatar %>" class="comment-avatar" onerror="this.style.display='none'">
+                                            <% } %>
+                                            <span class="comment-username"><%= rr.username %></span>
+                                            <span class="comment-time"><%= rr.created_at %></span>
+                                            <% if (typeof user !== 'undefined' && user && (user.is_admin === 1 || user.id === rr.user_id)) { %>
+                                                <button class="comment-delete-btn" onclick="deleteComment(<%= rr.id %>)">删除</button>
+                                            <% } %>
+                                        </div>
+                                        <div class="comment-body"><%= rr.content %></div>
+                                    </div>
+                                <% }); %>
+                            <% } %>
+                        <% }); %>
+                    <% } %>
+                <% } %>
+                <% comments.forEach(function(c) { renderComment(c, 0); }); %>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    var POST_ID = <%= post.id %>;
+    var IS_LOGGED_IN = <%= (typeof user !== 'undefined' && user) ? 'true' : 'false' %>;
+    var CURRENT_USER_ID = <%= (typeof user !== 'undefined' && user) ? user.id : 0 %>;
+    var IS_ADMIN = <%= (typeof user !== 'undefined' && user && user.is_admin === 1) ? 'true' : 'false' %>;
+
+    function escapeHtml(str) {
+        var d = document.createElement('div');
+        d.appendChild(document.createTextNode(str));
+        return d.innerHTML;
+    }
+
+    function renderCommentHTML(c, depth) {
+        var html = '<div class="comment-item" data-id="' + c.id + '">';
+        html += '<div class="comment-header">';
+        if (c.avatar) html += '<img src="' + c.avatar + '" class="comment-avatar" onerror="this.style.display=\'none\'">';
+        html += '<span class="comment-username">' + escapeHtml(c.username) + '</span>';
+        html += '<span class="comment-time">' + escapeHtml(c.created_at) + '</span>';
+        if (IS_ADMIN || CURRENT_USER_ID === c.user_id) {
+            html += '<button class="comment-delete-btn" onclick="deleteComment(' + c.id + ')">删除</button>';
+        }
+        html += '</div>';
+        html += '<div class="comment-body">' + escapeHtml(c.content) + '</div>';
+        if (IS_LOGGED_IN) {
+            html += '<button class="comment-reply-btn" onclick="toggleReply(' + c.id + ')">回复</button>';
+            html += '<div class="comment-reply-form" id="reply-form-' + c.id + '" style="display:none">';
+            html += '<textarea id="reply-input-' + c.id + '" placeholder="回复 ' + escapeHtml(c.username) + '..." rows="2"></textarea>';
+            html += '<button onclick="postReply(' + c.id + ')" class="comment-submit-btn">回复</button>';
+            html += '</div>';
+        }
+        html += '</div>';
+        if (c.replies && c.replies.length > 0) {
+            c.replies.forEach(function(r) {
+                html += '<div class="comment-reply-nested" style="margin-left:' + ((depth + 1) * 24) + 'px">';
+                html += '<div class="comment-header">';
+                if (r.avatar) html += '<img src="' + r.avatar + '" class="comment-avatar" onerror="this.style.display=\'none\'">';
+                html += '<span class="comment-username">' + escapeHtml(r.username) + '</span>';
+                html += '<span class="comment-time">' + escapeHtml(r.created_at) + '</span>';
+                if (IS_ADMIN || CURRENT_USER_ID === r.user_id) {
+                    html += '<button class="comment-delete-btn" onclick="deleteComment(' + r.id + ')">删除</button>';
+                }
+                html += '</div>';
+                html += '<div class="comment-body">' + escapeHtml(r.content) + '</div>';
+                if (IS_LOGGED_IN) {
+                    html += '<button class="comment-reply-btn" onclick="toggleReply(' + r.id + ')">回复</button>';
+                    html += '<div class="comment-reply-form" id="reply-form-' + r.id + '" style="display:none">';
+                    html += '<textarea id="reply-input-' + r.id + '" placeholder="回复 ' + escapeHtml(r.username) + '..." rows="2"></textarea>';
+                    html += '<button onclick="postReply(' + r.id + ')" class="comment-submit-btn">回复</button>';
+                    html += '</div>';
+                }
+                html += '</div>';
+            });
+        }
+        return html;
+    }
+
+    function toggleReply(id) {
+        var el = document.getElementById('reply-form-' + id);
+        if (el) el.style.display = el.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function postComment() {
+        var input = document.getElementById('comment-input');
+        var content = input.value.trim();
+        if (!content) return;
+        fetch('/blog/' + POST_ID + '/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: content })
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.success) {
+                var list = document.getElementById('comment-list');
+                list.insertAdjacentHTML('beforeend', renderCommentHTML(data.comment, 0));
+                input.value = '';
+                var count = document.getElementById('comment-count');
+                count.textContent = parseInt(count.textContent) + 1;
+            } else {
+                alert(data.error || '发表失败');
+            }
+        });
+    }
+
+    function postReply(parentId) {
+        var input = document.getElementById('reply-input-' + parentId);
+        var content = input.value.trim();
+        if (!content) return;
+        fetch('/blog/' + POST_ID + '/comments', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: content, parentId: parentId })
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.success) {
+                var parentEl = document.querySelector('[data-id="' + parentId + '"]');
+                var replyHtml = '<div class="comment-reply-nested" style="margin-left:24px">';
+                replyHtml += renderCommentHTML(data.comment, 1).replace(/<\/?div class="comment-item"[^>]*>/g, '');
+                replyHtml += '</div>';
+                parentEl.insertAdjacentHTML('afterend', replyHtml);
+                input.value = '';
+                var form = document.getElementById('reply-form-' + parentId);
+                if (form) form.style.display = 'none';
+                var count = document.getElementById('comment-count');
+                count.textContent = parseInt(count.textContent) + 1;
+            } else {
+                alert(data.error || '回复失败');
+            }
+        });
+    }
+
+    function deleteComment(id) {
+        if (!confirm('确定删除这条评论？')) return;
+        fetch('/blog/comment/' + id + '/delete', {
+            method: 'POST'
+        }).then(function(r) { return r.json(); }).then(function(data) {
+            if (data.success) {
+                var el = document.querySelector('[data-id="' + id + '"]');
+                if (el) el.remove();
+                var count = document.getElementById('comment-count');
+                count.textContent = Math.max(0, parseInt(count.textContent) - 1);
+            } else {
+                alert(data.error || '删除失败');
+            }
+    });
+}
+</script>
+<script>
+</script>
+    <script src="/meteors.js"></script>
+</body>
+</html>

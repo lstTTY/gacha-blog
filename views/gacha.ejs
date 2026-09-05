@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="msvalidate.01" content="F836059B67B11AF7B6B0D4BDF777C658" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png">
+    <link rel="apple-touch-icon" href="/favicon-180.png">
+    <title>似意抽卡 - 免费在线抽卡游戏 | 每日十连抽卡体验</title>
+    <meta name="description" content="似意抽卡是一个免费的在线抽卡网站，拥有精美的卡牌和炫酷的抽卡动画，每日免费抽卡10次。">
+    <meta name="keywords" content="抽卡,卡牌,游戏,在线抽卡,gacha,似意抽卡">
+    <link rel="stylesheet" href="/style.css?v=31">
+</head>
+<body>
+    <!-- 毛玻璃导航栏 -->
+    <nav class="navbar">
+        <span class="nav-brand"><img src="/images/siyichouka.png" class="nav-logo"></span>
+        <div class="nav-right">
+<a href="/news" class="nav-link"><img src="/images/news.png" class="nav-icon"></a>
+            <a href="/blog" class="nav-link"><img src="/images/blog.png" class="nav-icon"></a>
+            <a href="/history" class="nav-link"><img src="/images/history.png" class="nav-icon"></a>
+<% if (isAdmin) { %>
+                <a href="/admin" class="nav-link"><img src="/images/setting.png" class="nav-icon"></a>
+            <% } %>
+            <% if (user) { %>
+                <% if (user.avatar) { %>
+                    <img src="<%= user.avatar %>" class="nav-avatar" onerror="this.style.display='none'">
+                <% } %>
+                <span class="nav-user"><b><%= user.username %></b><% if (isAdmin) { %> <span style="color:#f59e0b;font-size:12px;">[管理员]</span><% } %></span>
+                <a href="/logout" class="nav-logout">退出</a>
+            <% } else { %>
+                <a href="/login" class="nav-link">登录</a>
+            <% } %>
+        </div>
+    </nav>
+
+    <!-- 粒子特效层 -->
+    <canvas id="particleCanvas"></canvas>
+
+    <!-- 抽卡结果弹窗（默认隐藏） -->
+    <div class="result-overlay" id="resultOverlay" style="display: none;">
+        <div class="result-card" id="resultCard">
+            <div class="result-card-image" id="resultCardImage"></div>
+            <h2 class="result-card-name" id="resultCardName"></h2>
+            <span class="result-card-rarity" id="resultCardRarity"></span>
+            <p class="result-card-desc" id="resultCardDesc"></p>
+            <button class="result-close-btn" onclick="closeResult()">确定</button>
+        </div>
+    </div>
+
+    <!-- 待机动画：背面卡牌从右向左飘过 -->
+    <div class="card-stream" id="cardStream">
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+        <div class="stream-card"></div>
+    </div>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <div class="stats">
+<% if (isAdmin) { %>
+                <p>管理员模式：无限抽卡</p>
+            <% } else if (isUnlimited) { %>
+                <p>今日剩余次数：<b id="remainingCount">不限</b></p>
+            <% } else { %>
+                <p>今日剩余次数：<b id="remainingCount"><%= remaining %></b> / 10</p>
+            <% } %>
+            <p>累计抽卡次数：<b id="pullCount"><%= user ? user.pulls : 0 %></b></p>
+            <% if (!user) { %>
+                <p class="guest-tip">游客模式抽卡不留记录，<a href="/register">免费注册</a>后永久保存抽卡历史</p>
+            <% } %>
+        </div>
+    </div>
+
+    <!-- 底部固定栏 -->
+    <div class="bottom-bar">
+        <% if (isAdmin) { %>
+        <!-- 管理员：指定ID输入框 -->
+        <div class="admin-row">
+            <input type="number" class="admin-input" id="adminCardId" placeholder="输入卡牌ID（留空随机）" min="1">
+        </div>
+        <% } %>
+        <button class="draw-btn" id="drawBtn" onclick="drawCard()">
+            抽 一 次
+        </button>
+    </div>
+
+<script>
+        var IS_ADMIN = <%= isAdmin ? 'true' : 'false' %>;
+        var IS_UNLIMITED = <%= isUnlimited ? 'true' : 'false' %>;
+    </script>
+    <script src="/app.js?v=11"></script>
+    <script src="/meteors.js"></script>
+</body>
+</html>
