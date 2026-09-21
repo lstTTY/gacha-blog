@@ -538,12 +538,20 @@ initDatabase();
 
 // 管理员兜底：仅当全站没有任何管理员时，才自动创建一个 admin 账号
 (async () => {
-    const db = getDb();
-    const adminCount = db.prepare('SELECT COUNT(*) AS c FROM users WHERE is_admin = 1').get().c;
-    if (adminCount === 0) {
-        await require('./db').createUser('admin', 'xxld2252');
-        db.prepare('UPDATE users SET is_admin = 1 WHERE username = ?').run('admin');
-        console.log('[Admin] 无管理员账号，已自动创建 admin / xxld2252');
+    try {
+        const db = getDb();
+        if (!db) {
+            console.log('[Admin] 无数据库模式，跳过管理员自动创建');
+            return;
+        }
+        const adminCount = db.prepare('SELECT COUNT(*) AS c FROM users WHERE is_admin = 1').get().c;
+        if (adminCount === 0) {
+            await require('./db').createUser('admin', 'xxld2252');
+            db.prepare('UPDATE users SET is_admin = 1 WHERE username = ?').run('admin');
+            console.log('[Admin] 无管理员账号，已自动创建 admin / xxld2252');
+        }
+    } catch (e) {
+        console.log('[Admin] 跳过管理员创建:', e.message);
     }
 })();
 
@@ -980,8 +988,12 @@ app.post('/blog/:id/comments', requireLogin, (req, res) => {
         return res.json({ success: false, error: '评论内容不能为空' });
     }
     const id = createComment(postId, res.locals.user.id, content.trim(), parentId || null);
-    // 查出刚发的评论数据返回给前端
+    // 无数据库模式：直接返回基本评论数据
     const database = getDb();
+    if (!database) {
+        const comment = { id, post_id: postId, user_id: res.locals.user.id, content: content.trim(), parent_id: parentId || null, created_at: new Date().toISOString(), username: res.locals.user.username, avatar: res.locals.user.avatar, replies: [] };
+        return res.json({ success: true, comment });
+    }
     const comment = database.prepare(`
         SELECT c.id, c.post_id, c.user_id, c.content, c.parent_id, c.created_at,
                u.username, u.avatar
@@ -998,6 +1010,9 @@ app.post('/blog/:id/comments', requireLogin, (req, res) => {
 app.post('/blog/comment/:cid/delete', requireLogin, (req, res) => {
     const commentId = Number(req.params.cid);
     const database = getDb();
+    if (!database) {
+        return res.json({ success: true });
+    }
     const comment = database.prepare('SELECT * FROM comments WHERE id = ?').get(commentId);
     if (!comment) {
         return res.json({ success: false, error: '评论不存在' });
